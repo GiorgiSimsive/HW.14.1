@@ -39,7 +39,7 @@ def test_category_initialization(sample_products: list[Product]) -> None:
     assert len(category.products) == 2
 
     for product in category.products:
-        assert isinstance(product, Product)
+        assert isinstance(product, str)
 
 
 def test_total_categories_increases(sample_products: list[Product]) -> None:
@@ -79,7 +79,6 @@ def test_product_price_getter_setter() -> None:
 
 
 def test_category_add_product_and_products_getter() -> None:
-
     p1 = Product("Молоко", "1 литр", 80, 10)
     p2 = Product("Хлеб", "Булка", 40, 20)
 
@@ -87,7 +86,7 @@ def test_category_add_product_and_products_getter() -> None:
 
     category.add_product(p2)
 
-    products_output = category.products_info()
+    products_output = category.products
 
     assert "Молоко, 80 руб. Остаток: 10 шт." in products_output
     assert "Хлеб, 40 руб. Остаток: 20 шт." in products_output

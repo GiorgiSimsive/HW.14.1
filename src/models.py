@@ -68,18 +68,8 @@ class Category:
             raise TypeError("Можно добавить только объект класса Product.")
 
     @property
-    def products(self) -> List[Product]:
+    def products(self) -> List[str]:
         """
-        Геттер для получения списка товаров категории как объектов Product.
+        Геттер для получения списка товаров категории в виде строк.
         """
-        return self.__products
-
-    def products_info(self) -> List[str]:
-        """
-        Возвращает список товаров категории в формате строк.
-        """
-        result = []
-        for product in self.__products:
-            product_str = f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
-            result.append(product_str)
-        return result
+        return [f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт." for product in self.__products]
