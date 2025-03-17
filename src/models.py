@@ -40,6 +40,20 @@ class Product:
 
         return cls(name, description, price, quantity)  # type: ignore
 
+    def __str__(self) -> str:
+        """
+        Строковое отображение товара.
+        """
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):  # type: ignore
+        """
+        Складывает два продукта по формуле: цена * количество + цена * количество.
+        """
+        if not isinstance(other, Product):
+            raise TypeError("Складывать можно только с другим продуктом")
+        return self.price * self.quantity + other.price * other.quantity
+
 
 class Category:
     total_categories = 0
@@ -73,3 +87,10 @@ class Category:
         Геттер для получения списка товаров категории в виде строк.
         """
         return [f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт." for product in self.__products]
+
+    def __str__(self) -> str:
+        """
+        Строковое отображение категории.
+        """
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."

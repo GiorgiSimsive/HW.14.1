@@ -106,3 +106,48 @@ def test_category_class_variables() -> None:
     assert Category.total_categories == initial_categories + 2
 
     assert Category.total_products >= initial_products + 2
+
+
+def test_product_str() -> None:
+    product = Product("Молоко", "1 литр", 80, 15)
+    expected_output = "Молоко, 80 руб. Остаток: 15 шт."
+    assert str(product) == expected_output
+
+
+def test_category_str() -> None:
+    p1 = Product("Молоко", "1 литр", 80, 15)
+    p2 = Product("Хлеб", "Булка", 40, 20)
+
+    category = Category("Продукты", "Еда", [p1, p2])
+
+    expected_output = "Продукты, количество продуктов: 35 шт."
+    assert str(category) == expected_output
+
+
+def test_category_products_property() -> None:
+    p1 = Product("Молоко", "1 литр", 80, 15)
+    p2 = Product("Хлеб", "Булка", 40, 20)
+
+    category = Category("Продукты", "Еда", [p1, p2])
+
+    products_output = category.products
+
+    assert products_output == ["Молоко, 80 руб. Остаток: 15 шт.", "Хлеб, 40 руб. Остаток: 20 шт."]
+
+
+def test_product_add() -> None:
+    p1 = Product("Молоко", "1 литр", 80, 10)
+    p2 = Product("Хлеб", "Булка", 40, 5)
+
+    assert p1 + p2 == 1000
+
+
+def test_product_add_with_invalid_type() -> None:
+    p1 = Product("Молоко", "1 литр", 80, 10)
+
+    try:
+        _ = p1 + 5
+    except TypeError as e:
+        assert str(e) == "Складывать можно только с другим продуктом"
+    else:
+        assert False, "TypeError не был вызван"
