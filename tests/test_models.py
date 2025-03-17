@@ -39,7 +39,7 @@ def test_category_initialization(sample_products: list[Product]) -> None:
     assert len(category.products) == 2
 
     for product in category.products:
-        assert isinstance(product, Product)
+        assert isinstance(product, str)
 
 
 def test_total_categories_increases(sample_products: list[Product]) -> None:
@@ -63,3 +63,46 @@ def test_total_products_increases(sample_products: list[Product]) -> None:
 
     Category("Игрушки", "Для детей", [Product("Кубики", "Деревянные кубики", 500.0, 50)])
     assert Category.total_products == 3
+
+
+def test_product_price_getter_setter() -> None:
+
+    product = Product("Тестовый продукт", "Описание", 100, 10)
+
+    assert product.price == 100
+
+    product.price = 150
+    assert product.price == 150
+
+    product.price = -50
+    assert product.price == 150
+
+
+def test_category_add_product_and_products_getter() -> None:
+    p1 = Product("Молоко", "1 литр", 80, 10)
+    p2 = Product("Хлеб", "Булка", 40, 20)
+
+    category = Category("Продукты", "Еда", [p1])
+
+    category.add_product(p2)
+
+    products_output = category.products
+
+    assert "Молоко, 80 руб. Остаток: 10 шт." in products_output
+    assert "Хлеб, 40 руб. Остаток: 20 шт." in products_output
+
+
+def test_category_class_variables() -> None:
+
+    initial_categories = Category.total_categories
+    initial_products = Category.total_products
+
+    p1 = Product("Товар1", "Описание", 100, 5)
+    p2 = Product("Товар2", "Описание", 150, 8)
+
+    Category("Категория1", "Описание", [p1])
+    Category("Категория2", "Описание", [p2])
+
+    assert Category.total_categories == initial_categories + 2
+
+    assert Category.total_products >= initial_products + 2
