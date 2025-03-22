@@ -1,38 +1,78 @@
+from abc import ABC, abstractmethod
 from typing import List
 
 
-class Product:
+class LoggerMixin:
+    def __init__(self, *args, **kwargs):  # type: ignore
+        print(f"[LOG] Создан объект класса {self.__class__.__name__} с args={args}, kwargs={kwargs}")
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):  # type: ignore
+        return f"{self.__class__.__name__}({self.__dict__})"
+
+
+class BaseProduct(ABC):
+    """
+    Абстрактный базовый класс для всех продуктов.
+    """
+
+    @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
-        """
-        Инициализация товара.
-        """
         self.name = name
         self.description = description
-        self.__price = price
+        self._price = price
         self.quantity = quantity
 
     @property
     def price(self) -> float:
         """
-        Геттер для приватного атрибута __price.
+        Геттер для приватного атрибута _price.
         """
-        return self.__price
+        return self._price
 
     @price.setter
     def price(self, value: float) -> None:
         """
-        Сеттер для приватного атрибута __price.
+        Сеттер для приватного атрибута _price.
         """
         if value <= 0:
             print("Цена не должна быть нулевая или отрицательная")
         else:
-            self.__price = value
+            self._price = value
+
+    @classmethod
+    @abstractmethod
+    def new_product(cls, data: dict):  # type: ignore
+        """
+        Абстрактный метод для создания нового продукта из словаря.
+        """
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """
+        Абстрактный метод строкового отображения продукта.
+        """
+        pass
+
+    @abstractmethod
+    def __add__(self, other: "BaseProduct") -> float:
+        """
+        Абстрактный метод сложения продуктов.
+        """
+        pass
+
+
+class Product(LoggerMixin, BaseProduct):
+    """
+    Базовый класс продукта, реализующий методы BaseProduct.
+    """
+
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        super().__init__(name, description, price, quantity)
 
     @classmethod
     def new_product(cls, data: dict):  # type: ignore
-        """
-        Класс-метод для создания нового продукта из словаря.
-        """
         name = data.get("name")
         description = data.get("description")
         price = data.get("price")
@@ -41,16 +81,9 @@ class Product:
         return cls(name, description, price, quantity)  # type: ignore
 
     def __str__(self) -> str:
-        """
-        Строковое отображение товара.
-        """
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
-    def __add__(self, other: "Product") -> float:
-        """
-        Складывает два продукта по формуле: цена * количество + цена * количество,
-        но только если оба продукта одного типа.
-        """
+    def __add__(self, other: "BaseProduct") -> float:
         if not isinstance(other, Product):
             raise TypeError("Складывать можно только объекты класса Product или его наследников.")
 
