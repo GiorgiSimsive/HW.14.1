@@ -1,6 +1,6 @@
 import pytest
 
-from src.models import Category, Product
+from src.models import Category, LawnGrass, Product, Smartphone
 
 
 @pytest.fixture
@@ -146,8 +146,108 @@ def test_product_add_with_invalid_type() -> None:
     p1 = Product("Молоко", "1 литр", 80, 10)
 
     try:
-        _ = p1 + 5
+        _ = p1 + 5  # type: ignore
     except TypeError as e:
-        assert str(e) == "Складывать можно только с другим продуктом"
+        assert str(e) == "Складывать можно только объекты класса Product или его наследников."
     else:
         assert False, "TypeError не был вызван"
+
+
+@pytest.fixture
+def smartphone():  # type: ignore
+    return Smartphone(
+        name="iPhone 15 Pro",
+        description="Новый флагман Apple",
+        price=150000,
+        quantity=5,
+        efficiency="A17 Pro",
+        model="15 Pro",
+        memory=256,
+        color="Space Black",
+    )
+
+
+@pytest.fixture
+def lawn_grass():  # type: ignore
+    return LawnGrass(
+        name="Трава универсальная",
+        description="Газон для дачи",
+        price=3000,
+        quantity=10,
+        country="Голландия",
+        germination_period=14,
+        color="Зеленый",
+    )
+
+
+def test_smartphone_creation(smartphone):  # type: ignore
+    assert smartphone.name == "iPhone 15 Pro"
+    assert smartphone.description == "Новый флагман Apple"
+    assert smartphone.price == 150000
+    assert smartphone.quantity == 5
+    assert smartphone.efficiency == "A17 Pro"
+    assert smartphone.model == "15 Pro"
+    assert smartphone.memory == 256
+    assert smartphone.color == "Space Black"
+
+    expected_str = (
+        "iPhone 15 Pro, 150000 руб. Остаток: 5 шт. | "
+        "Модель: 15 Pro, Память: 256GB, Цвет: Space Black, Производительность: A17 Pro"
+    )
+    assert str(smartphone) == expected_str
+
+
+def test_lawn_grass_creation(lawn_grass):  # type: ignore
+    assert lawn_grass.name == "Трава универсальная"
+    assert lawn_grass.description == "Газон для дачи"
+    assert lawn_grass.price == 3000
+    assert lawn_grass.quantity == 10
+    assert lawn_grass.country == "Голландия"
+    assert lawn_grass.germination_period == 14
+    assert lawn_grass.color == "Зеленый"
+
+    expected_str = (
+        "Трава универсальная, 3000 руб. Остаток: 10 шт. | "
+        "Страна: Голландия, Период прорастания: 14 дней, Цвет: Зеленый"
+    )
+    assert str(lawn_grass) == expected_str
+
+
+def test_product_addition(smartphone, lawn_grass):  # type: ignore
+    with pytest.raises(TypeError) as excinfo:
+        _ = smartphone + lawn_grass
+
+    assert str(excinfo.value) == "Нельзя сложить Smartphone с LawnGrass"
+
+
+def test_add_product_type_error(smartphone):  # type: ignore
+    with pytest.raises(TypeError):
+        _ = smartphone + "NotAProduct"
+
+
+def test_price_setter_negative(smartphone, capsys):  # type: ignore
+    smartphone.price = -500
+    captured = capsys.readouterr()
+    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    assert smartphone.price == 150000
+
+
+def test_add_different_product_types_error(smartphone, lawn_grass):  # type: ignore
+    with pytest.raises(TypeError) as exc_info:
+        _ = smartphone + lawn_grass
+
+    assert "Нельзя сложить Smartphone с LawnGrass" in str(exc_info.value)
+
+
+def test_add_invalid_product_type() -> None:
+    category = Category("Смартфоны", "Флагманы", [])
+
+    with pytest.raises(TypeError) as exc_info:
+        category.add_product("не продукт")  # type: ignore[arg-type]
+
+    assert "Можно добавить только объект класса Product" in str(exc_info.value)
+
+    with pytest.raises(TypeError) as exc_info:
+        category.add_product(123)  # type: ignore[arg-type]
+
+    assert "Можно добавить только объект класса Product" in str(exc_info.value)
