@@ -1,6 +1,6 @@
 import pytest
 
-from src.models import Category, LawnGrass, Product, Smartphone
+from src.models import BaseProduct, Category, LawnGrass, Product, Smartphone
 
 
 @pytest.fixture
@@ -251,3 +251,30 @@ def test_add_invalid_product_type() -> None:
         category.add_product(123)  # type: ignore[arg-type]
 
     assert "Можно добавить только объект класса Product" in str(exc_info.value)
+
+
+def test_base_product_is_abstract() -> None:
+    """
+    Проверяем, что нельзя создать экземпляр абстрактного класса BaseProduct.
+    """
+    with pytest.raises(TypeError):
+        bp = BaseProduct("Название", "Описание", 1000.0, 10)  # type: ignore  # noqa: F841
+
+
+def test_product_inherits_baseproduct() -> None:
+    """
+    Проверяем создание объекта Product.
+    """
+    product = Product("Тестовый продукт", "Описание", 100.0, 5)
+    assert isinstance(product, BaseProduct)
+    assert product.name == "Тестовый продукт"
+    assert product.description == "Описание"
+    assert product.price == 100.0
+    assert product.quantity == 5
+
+
+def test_logger_mixin_creates_log_message(capsys):  # type: ignore
+    p = Product("Продукт2", "Описание продукта 2", 1500, 5)  # noqa: F841
+    captured = capsys.readouterr()
+    assert "[LOG] Создан объект класса Product" in captured.out
+    assert "Продукт2" in captured.out
