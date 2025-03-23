@@ -18,6 +18,8 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
         self.name = name
         self.description = description
         self._price = price
@@ -194,3 +196,17 @@ class Category:
         """
         total_quantity = sum(product.quantity for product in self.__products)
         return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+    def get_average_price(self) -> float:
+        """
+        Возвращает средний ценник всех товаров в категории.
+        Если товаров нет, возвращает 0.
+        """
+        try:
+            total_price = sum(product.price for product in self.__products)
+            count_products = len(self.__products)
+            average_price = total_price / count_products
+            return average_price
+        except ZeroDivisionError:
+            print(f"Категория '{self.name}' не содержит товаров. Средний ценник = 0.")
+            return 0.0
