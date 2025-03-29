@@ -278,3 +278,32 @@ def test_logger_mixin_creates_log_message(capsys):  # type: ignore
     captured = capsys.readouterr()
     assert "[LOG] Создан объект класса Product" in captured.out
     assert "Продукт2" in captured.out
+
+
+def test_product_with_zero_quantity_raises_value_error() -> None:
+    with pytest.raises(ValueError) as exc_info:  # type: ignore
+        Product("Тестовый товар", "Описание", 1000.0, 0)
+
+    assert str(exc_info.value) == "Товар с нулевым количеством не может быть добавлен"
+
+
+def test_product_with_positive_quantity_creates_successfully() -> None:
+    product = Product("Тестовый товар", "Описание", 1000.0, 5)
+
+    assert product.name == "Тестовый товар"
+    assert product.price == 1000.0
+    assert product.quantity == 5
+
+
+def test_get_average_price_with_no_products() -> None:
+    category = Category("Пустая категория", "Нет товаров", [])
+    assert category.get_average_price() == 0.0
+
+
+def test_get_average_price_with_products() -> None:
+    products = [
+        Product("Товар 1", "Описание", 100.0, 5),
+        Product("Товар 2", "Описание", 200.0, 3),
+    ]
+    category = Category("Тестовая категория", "С товарами", products)
+    assert category.get_average_price() == 150.0
